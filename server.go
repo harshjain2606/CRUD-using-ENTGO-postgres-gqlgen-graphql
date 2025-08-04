@@ -4,7 +4,7 @@ import (
 	"context"
 	"entgql-crud/ent"
 	"entgql-crud/graph"
-	
+
 	"log"
 	"net/http"
 	"os"
@@ -18,10 +18,10 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
-const defaultPort = "8081"
+const defaultPort = "8080"
 
 func main() {
-	   constStr := os.Getenv("Database_URL")
+	constStr := os.Getenv("Database_URL")
 	if constStr == "" {
 		log.Fatal("Database_URL environment variable is not set")
 	}
@@ -34,7 +34,6 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 
 	}
-	 
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -56,7 +55,6 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
-	
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 
