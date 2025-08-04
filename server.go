@@ -21,7 +21,11 @@ import (
 const defaultPort = "8081"
 
 func main() {
-	client, err := ent.Open("postgres", "host=localhost port=5432 user=postgres dbname=entdb password=Haarsh@123 sslmode=disable")
+	   constStr := os.Getenv("Database_URL")
+	if constStr == "" {
+		log.Fatal("Database_URL environment variable is not set")
+	}
+	client, err := ent.Open("postgres", constStr)
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
@@ -30,6 +34,8 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 
 	}
+	 
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
@@ -50,6 +56,7 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
+	
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 

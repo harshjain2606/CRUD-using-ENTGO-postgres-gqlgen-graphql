@@ -14,6 +14,6 @@ type Client struct {
 func (Client) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
-		field.String("email").Unique(),
+		field.String("email"),
 	}
 }
