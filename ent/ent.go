@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"entgql-crud/ent/customer"
 	"entgql-crud/ent/user"
 	"errors"
 	"fmt"
@@ -73,7 +74,8 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			customer.Table: customer.ValidColumn,
+			user.Table:     user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

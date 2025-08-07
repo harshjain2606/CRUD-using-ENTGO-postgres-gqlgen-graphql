@@ -2,11 +2,23 @@ type User {
   id: ID!
   name: String!
   email: String!
+  password: String! 
 }
 
+input loginInput {
+  email : String!
+  password : String!
+}
+
+ type Loginpayload {
+token : String
+message : String!
+success : Boolean!
+ }
 input NewUser {
   name: String!
   email: String!
+  password: String!
 }
 
 input UpdateUser {
@@ -18,10 +30,12 @@ input UpdateUser {
 type Query {
   users: [User!]!
   user(id: ID!): User
+   me: User
 }
 
 type Mutation {
   createUser(input: NewUser!): User!
   updateUser(id:ID!, input: UpdateUser!): User!
   deleteUser(id: ID!): Boolean!   
+  login(input: loginInput!): Loginpayload!
 }

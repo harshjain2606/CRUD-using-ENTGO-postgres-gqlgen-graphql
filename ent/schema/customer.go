@@ -6,14 +6,15 @@ import (
 )
 
 // Client holds the schema definition for the Client entity.
-type Client struct {
+type Customer struct {
 	ent.Schema
 }
 
 // Fields of the Client.
-func (Client) Fields() []ent.Field {
+func (Customer) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
 		field.String("email"),
+		field.String("password"),
 	}
 }

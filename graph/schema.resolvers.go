@@ -7,19 +7,31 @@ package graph
 import (
 	"context"
 	"entgql-crud/ent"
+	"entgql-crud/ent/user"
 	"entgql-crud/graph/model"
+	"entgql-crud/utils"
 	"fmt"
 	"strconv"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*ent.User, error) {
+	// if input.Name == nil || *input.Name == "" {
+	// 	return nil, fmt.Errorf("name is required")
+	// }
+	// if input.Email == "" || !strings.Contains(input.Email, "@") {
+	// 	// Validate email format
+	// 	return nil, fmt.Errorf("email  required in correct format")
+	// }
 	u, err := r.Client.User.
 		Create().
 		SetName(input.Name).
 		SetEmail(input.Email).
+		SetPassword(input.Password).
 		Save(ctx)
+
 	if err != nil {
+
 		return nil, err
 	}
 
@@ -51,14 +63,58 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 	return true, r.Client.User.DeleteOneID(deleteid).Exec(ctx)
 }
 
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Loginpayload, error) {
+	u, err := r.Client.User.
+		Query().
+		Where(user.EmailEQ(input.Email)).
+		Only(ctx)
+	if err != nil {
+		return &model.Loginpayload{
+			Success: false,
+			Message: "User has more than one same email and same password sorry cannot login",
+		}, nil
+	}
+	if u.Password != input.Password {
+		return &model.Loginpayload{
+			Success: false,
+			Message: "Invalid password",
+		}, nil
+	}
+	token, err := utils.GenerateJWT(u.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate token: %v", err)
+	}
+	// Check password match (use hashing in production)
+	return &model.Loginpayload{
+		Token:   &token,
+		Message: "Login successful",
+		Success: true,
+	}, nil
+}
+
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*ent.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+	users, err := r.Client.User.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*ent.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	userid, _ := strconv.Atoi(id)
+	user, err := r.Client.User.Get(ctx, userid)
+	if err != nil {
+		return nil, fmt.Errorf("user not found: %w", err)
+	}
+	return user, nil
+}
+
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*ent.User, error) {
+	panic(fmt.Errorf("not implemented: Me - me"))
 }
 
 // Mutation returns MutationResolver implementation.

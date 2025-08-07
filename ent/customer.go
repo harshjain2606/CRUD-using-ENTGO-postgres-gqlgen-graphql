@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"entgql-crud/ent/user"
+	"entgql-crud/ent/customer"
 	"fmt"
 	"strings"
 
@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// User is the model entity for the User schema.
-type User struct {
+// Customer is the model entity for the Customer schema.
+type Customer struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
@@ -26,13 +26,13 @@ type User struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*User) scanValues(columns []string) ([]any, error) {
+func (*Customer) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID:
+		case customer.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldEmail, user.FieldPassword:
+		case customer.FieldName, customer.FieldEmail, customer.FieldPassword:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -42,84 +42,84 @@ func (*User) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the User fields.
-func (u *User) assignValues(columns []string, values []any) error {
+// to the Customer fields.
+func (c *Customer) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID:
+		case customer.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			u.ID = int(value.Int64)
-		case user.FieldName:
+			c.ID = int(value.Int64)
+		case customer.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				u.Name = value.String
+				c.Name = value.String
 			}
-		case user.FieldEmail:
+		case customer.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
-				u.Email = value.String
+				c.Email = value.String
 			}
-		case user.FieldPassword:
+		case customer.FieldPassword:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field password", values[i])
 			} else if value.Valid {
-				u.Password = value.String
+				c.Password = value.String
 			}
 		default:
-			u.selectValues.Set(columns[i], values[i])
+			c.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the User.
+// Value returns the ent.Value that was dynamically selected and assigned to the Customer.
 // This includes values selected through modifiers, order, etc.
-func (u *User) Value(name string) (ent.Value, error) {
-	return u.selectValues.Get(name)
+func (c *Customer) Value(name string) (ent.Value, error) {
+	return c.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this User.
-// Note that you need to call User.Unwrap() before calling this method if this User
+// Update returns a builder for updating this Customer.
+// Note that you need to call Customer.Unwrap() before calling this method if this Customer
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (u *User) Update() *UserUpdateOne {
-	return NewUserClient(u.config).UpdateOne(u)
+func (c *Customer) Update() *CustomerUpdateOne {
+	return NewCustomerClient(c.config).UpdateOne(c)
 }
 
-// Unwrap unwraps the User entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Customer entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (u *User) Unwrap() *User {
-	_tx, ok := u.config.driver.(*txDriver)
+func (c *Customer) Unwrap() *Customer {
+	_tx, ok := c.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: User is not a transactional entity")
+		panic("ent: Customer is not a transactional entity")
 	}
-	u.config.driver = _tx.drv
-	return u
+	c.config.driver = _tx.drv
+	return c
 }
 
 // String implements the fmt.Stringer.
-func (u *User) String() string {
+func (c *Customer) String() string {
 	var builder strings.Builder
-	builder.WriteString("User(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
+	builder.WriteString("Customer(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
 	builder.WriteString("name=")
-	builder.WriteString(u.Name)
+	builder.WriteString(c.Name)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
-	builder.WriteString(u.Email)
+	builder.WriteString(c.Email)
 	builder.WriteString(", ")
 	builder.WriteString("password=")
-	builder.WriteString(u.Password)
+	builder.WriteString(c.Password)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Users is a parsable slice of User.
-type Users []*User
+// Customers is a parsable slice of Customer.
+type Customers []*Customer
