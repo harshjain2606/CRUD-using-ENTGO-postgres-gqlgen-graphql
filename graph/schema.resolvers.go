@@ -9,6 +9,8 @@ import (
 	"entgql-crud/ent"
 	"entgql-crud/ent/user"
 	"entgql-crud/graph/model"
+	"entgql-crud/middleware"
+
 	"entgql-crud/utils"
 	"fmt"
 	"strconv"
@@ -114,7 +116,17 @@ func (r *queryResolver) User(ctx context.Context, id string) (*ent.User, error) 
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*ent.User, error) {
-	panic(fmt.Errorf("not implemented: Me - me"))
+	userIDVal := ctx.Value(middleware.UserIDKey)
+	if userIDVal == nil {
+		return nil, fmt.Errorf("unauthorized: user ID missing in context")
+	}
+
+	userID, ok := userIDVal.(int)
+	if !ok {
+		return nil, fmt.Errorf("invalid user ID type in context")
+	}
+
+	return r.Client.User.Get(ctx, userID)
 }
 
 // Mutation returns MutationResolver implementation.
